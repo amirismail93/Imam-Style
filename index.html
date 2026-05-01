@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imam Style Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e1a;
+      --bg-card: #0f1528;
+      --bg-card-hover: #141c35;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --gold-dim: #8a6f2e;
+      --cream: #f0e6cc;
+      --cream-dim: #b8a882;
+      --border: #2a3560;
+      --border-gold: #4a3a1a;
+      --text: #d4c9a8;
+      --text-dim: #7a6e54;
+      --teal: #3aafaf;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', Georgia, serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(42,127,127,0.04) 0%, transparent 60%);
+    }
+
+    .header {
+      text-align: center;
+      padding: 48px 24px 32px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-ornament { font-family: 'Amiri', serif; font-size: 32px; color: var(--gold); letter-spacing: 16px; margin-bottom: 16px; opacity: 0.7; }
+    .header-title { font-family: 'Cinzel', serif; font-size: clamp(20px, 4vw, 34px); font-weight: 700; color: var(--cream); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+    .header-subtitle { font-family: 'Amiri', serif; font-size: 22px; color: var(--gold); margin-bottom: 12px; direction: rtl; }
+    .header-desc { font-size: 13px; color: var(--cream-dim); font-style: italic; max-width: 480px; margin: 0 auto; line-height: 1.8; }
+
+    .nav {
+      display: flex; justify-content: center; gap: 4px; padding: 16px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border); background: rgba(10,14,26,0.9);
+      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+    }
+    .nav-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--cream-dim);
+      padding: 8px 16px; border-radius: 4px; cursor: pointer;
+      font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; transition: all 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--gold-dim); color: var(--cream); }
+    .nav-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--cream); }
+
+    .content { max-width: 860px; margin: 0 auto; padding: 32px 16px 80px; display: none; }
+    .content.active { display: block; }
+
+    .section-title {
+      font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--gold-dim), transparent); }
+    .section-desc { font-size: 13px; color: var(--cream-dim); font-style: italic; margin-bottom: 24px; line-height: 1.8; }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 14px; transition: all 0.2s; }
+    .card:hover { border-color: var(--border-gold); background: var(--bg-card-hover); }
+
+    .phrase-arabic { font-family: 'Amiri', serif; font-size: 30px; color: var(--cream); direction: rtl; text-align: right; margin-bottom: 8px; line-height: 1.7; }
+    .phrase-trans { font-size: 14px; color: var(--gold); font-style: italic; margin-bottom: 4px; }
+    .phrase-meaning { font-size: 12px; color: var(--cream-dim); margin-bottom: 12px; }
+    .phrase-times { display: inline-block; background: rgba(201,168,76,0.1); border: 1px solid var(--gold-dim); color: var(--gold); font-size: 10px; letter-spacing: 1px; padding: 2px 10px; border-radius: 20px; font-family: 'Cinzel', serif; margin-bottom: 12px; }
+    .phrase-note { font-size: 13px; color: var(--text); line-height: 1.7; border-left: 2px solid var(--gold-dim); padding-left: 12px; font-style: italic; }
+
+    .reciter-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 14px; cursor: pointer; position: relative; overflow: hidden; transition: all 0.25s; }
+    .reciter-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--rc); opacity: 0.5; transition: opacity 0.2s; }
+    .reciter-card:hover::before, .reciter-card.open::before { opacity: 1; }
+    .reciter-card:hover, .reciter-card.open { border-color: rgba(255,255,255,0.1); background: var(--bg-card-hover); }
+    .reciter-name-ar { font-family: 'Amiri', serif; font-size: 20px; color: var(--rc); direction: rtl; margin-bottom: 4px; }
+    .reciter-name { font-family: 'Cinzel', serif; font-size: 15px; color: var(--cream); margin-bottom: 4px; }
+    .reciter-mosque { font-size: 12px; color: var(--cream-dim); font-style: italic; margin-bottom: 12px; }
+    .tag { display: inline-block; border: 1px solid; font-size: 10px; letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; margin: 2px; font-family: 'Cinzel', serif; }
+    .reciter-detail { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: none; animation: fadeIn 0.3s ease; }
+    .reciter-card.open .reciter-detail { display: block; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .detail-item label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-dim); display: block; margin-bottom: 4px; }
+    .detail-item p { font-size: 13px; color: var(--text); line-height: 1.5; }
+    .insight-box { background: rgba(201,168,76,0.04); border: 1px solid var(--border-gold); border-radius: 6px; padding: 14px 16px; margin-top: 12px; font-size: 13px; color: var(--cream); line-height: 1.8; font-style: italic; }
+    .yt-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; color: var(--gold); text-decoration: none; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 1px; border: 1px solid var(--gold-dim); padding: 7px 16px; border-radius: 4px; transition: all 0.2s; }
+    .yt-link:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+
+    .maqam-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--mc); border-radius: 8px; padding: 24px; margin-bottom: 14px; }
+    .maqam-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .maqam-name { font-family: 'Cinzel', serif; font-size: 18px; color: var(--cream); }
+    .maqam-arabic { font-family: 'Amiri', serif; font-size: 22px; color: var(--mc); direction: rtl; }
+    .maqam-feel { font-size: 13px; color: var(--gold); font-style: italic; margin-bottom: 10px; }
+    .maqam-desc { font-size: 13px; color: var(--text); line-height: 1.8; margin-bottom: 14px; }
+    .maqam-voice { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 4px; padding: 10px 14px; font-size: 12px; color: var(--cream-dim); }
+    .maqam-voice strong { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 4px; }
+    .blend-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-top: 8px; }
+    .blend-box p { font-size: 14px; color: var(--text); line-height: 1.9; }
+    .blend-box strong { color: var(--gold); }
+
+    .gen-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 28px; margin-bottom: 20px; }
+    .gen-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-dim); display: block; margin-bottom: 8px; }
+    .gen-textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; color: var(--cream); padding: 12px 14px; font-family: 'Amiri', serif; font-size: 22px; margin-bottom: 16px; outline: none; resize: vertical; min-height: 110px; direction: rtl; line-height: 1.9; transition: border-color 0.2s; }
+    .gen-textarea:focus { border-color: var(--gold-dim); }
+
+    .quick-phrases { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .qp-btn { background: rgba(201,168,76,0.06); border: 1px solid var(--border-gold); color: var(--gold); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: 'Amiri', serif; font-size: 16px; direction: rtl; transition: all 0.2s; }
+    .qp-btn:hover { background: rgba(201,168,76,0.12); border-color: var(--gold); }
+
+    .voice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+    .voice-opt { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; cursor: pointer; transition: all 0.2s; }
+    .voice-opt:hover, .voice-opt.sel { border-color: var(--gold-dim); background: rgba(201,168,76,0.06); }
+    .voice-opt.sel { border-color: var(--gold); }
+    .voice-opt-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--cream); margin-bottom: 2px; }
+    .voice-opt-sub { font-size: 11px; color: var(--text-dim); }
+
+    .slider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .slider-group label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold-dim); display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .slider-group label span { color: var(--gold); }
+    input[type="range"] { width: 100%; accent-color: var(--gold); cursor: pointer; }
+
+    .gen-btn { width: 100%; background: linear-gradient(135deg, var(--gold-dim), var(--gold)); border: none; color: #0a0e1a; padding: 14px; border-radius: 6px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; transition: all 0.2s; }
+    .gen-btn:hover:not(:disabled) { background: linear-gradient(135deg, var(--gold), var(--gold-light)); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
+    .gen-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .audio-result { margin-top: 20px; background: rgba(201,168,76,0.05); border: 1px solid var(--border-gold); border-radius: 8px; padding: 20px; animation: fadeIn 0.3s ease; }
+    .audio-result audio { width: 100%; margin-top: 8px; border-radius: 4px; }
+    .audio-label { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+    .audio-tip { font-size: 12px; color: var(--cream-dim); margin-top: 10px; font-style: italic; line-height: 1.6; }
+
+    .error-box { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.4); border-radius: 6px; padding: 14px; color: #e87878; font-size: 13px; margin-top: 14px; line-height: 1.6; }
+    .loading-text { text-align: center; color: var(--gold); font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; padding: 20px; animation: pulse 1.5s infinite; }
+
+    .notes-area { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; color: var(--cream); padding: 16px; font-family: 'Lora', serif; font-size: 14px; resize: vertical; min-height: 220px; outline: none; line-height: 1.8; transition: border-color 0.2s; }
+    .notes-area:focus { border-color: var(--gold-dim); }
+    .save-notes-btn { background: transparent; border: 1px solid var(--gold-dim); color: var(--gold); padding: 10px 24px; border-radius: 4px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 12px; transition: all 0.2s; }
+    .save-notes-btn:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+    .notes-saved { font-size: 12px; color: var(--teal); margin-top: 8px; font-style: italic; display: none; }
+
+    .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin: 24px 0; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    @media (max-width: 560px) {
+      .detail-grid, .slider-grid, .voice-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-ornament">﷽</div>
+  <div class="header-title">Imam Style Explorer</div>
+  <div class="header-subtitle">مستكشف أسلوب الإمام</div>
+  <div class="header-desc">A personal toolkit for developing your Adhan, recitation identity, and vocal maqam — built for the mu'adhdhin who leads with intention.</div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showTab('adhan', this)">Adhan</button>
+  <button class="nav-btn" onclick="showTab('reciters', this)">Reciters</button>
+  <button class="nav-btn" onclick="showTab('maqamat', this)">Maqamat</button>
+  <button class="nav-btn" onclick="showTab('generator', this)">Generator</button>
+  <button class="nav-btn" onclick="showTab('notes', this)">My Notes</button>
+</nav>
+
+<!-- ADHAN -->
+<div id="tab-adhan" class="content active">
+  <div class="section-title">Adhan — Phrase by Phrase</div>
+  <p class="section-desc">Each phrase carries its own emotional weight. Understand what you're saying and your delivery will carry that truth naturally.</p>
+  <div class="card"><div class="phrase-arabic">ٱللَّٰهُ أَكْبَرُ</div><div class="phrase-trans">Allāhu Akbar</div><div class="phrase-meaning">Allah is the Greatest</div><div class="phrase-times">× 4</div><div class="phrase-note">Opening — sets the tone. The moment of command. Let the first takbir land with full chest resonance before the second.</div></div>
+  <div class="card"><div class="phrase-arabic">أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّٰهُ</div><div class="phrase-trans">Ashhadu an lā ilāha illā Allāh</div><div class="phrase-meaning">I bear witness that there is no god but Allah</div><div class="phrase-times">× 2</div><div class="phrase-note">Declaration of Tawhid — emotion first peaks here. Soften into it. The word "illā" is your pivot point.</div></div>
+  <div class="card"><div class="phrase-arabic">أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ ٱللَّٰهِ</div><div class="phrase-trans">Ashhadu anna Muḥammadan rasūlu Allāh</div><div class="phrase-meaning">I bear witness that Muhammad is the Messenger of Allah</div><div class="phrase-times">× 2</div><div class="phrase-note">Warm, reverent, intimate. Many reciters drop volume slightly here to convey deep love.</div></div>
+  <div class="card"><div class="phrase-arabic">حَيَّ عَلَى ٱلصَّلَاةِ</div><div class="phrase-trans">Ḥayya ʿalā ṣ-ṣalāh</div><div class="phrase-meaning">Come to prayer</div><div class="phrase-times">× 2</div><div class="phrase-note">The call to action — your voice rises and opens. This is where Saba inflections shine. Turn right on the first, left on the second.</div></div>
+  <div class="card"><div class="phrase-arabic">حَيَّ عَلَى ٱلْفَلَاحِ</div><div class="phrase-trans">Ḥayya ʿalā l-falāḥ</div><div class="phrase-meaning">Come to success</div><div class="phrase-times">× 2</div><div class="phrase-note">Climactic phrase — the deepest emotional resonance. Let "falāḥ" hang in the air. This is the moment the community feels the call.</div></div>
+  <div class="card"><div class="phrase-arabic">ٱللَّٰهُ أَكْبَرُ</div><div class="phrase-trans">Allāhu Akbar</div><div class="phrase-meaning">Allah is the Greatest</div><div class="phrase-times">× 2</div><div class="phrase-note">Return — grounding after the peak. Come back down gently. The congregation is ready.</div></div>
+  <div class="card"><div class="phrase-arabic">لَا إِلَٰهَ إِلَّا ٱللَّٰهُ</div><div class="phrase-trans">Lā ilāha illā Allāh</div><div class="phrase-meaning">There is no god but Allah</div><div class="phrase-times">× 1</div><div class="phrase-note">Closing — gentle resolve. Let silence do the final work. The Adhan ends in stillness.</div></div>
+</div>
+
+<!-- RECITERS -->
+<div id="tab-reciters" class="content">
+  <div class="section-title">Your Reciter DNA</div>
+  <p class="section-desc">These four share a deep chest voice, emotional restraint, and soulful delivery — exactly your lane. Tap each to expand.</p>
+
+  <div class="reciter-card" style="--rc:#c9a84c" onclick="toggleReciter(this)">
+    <div class="reciter-name-ar">عبدالرحمن السديس</div>
+    <div class="reciter-name">Sheikh Abdur-Rahman Al-Sudais</div>
+    <div class="reciter-mosque">Masjid Al-Haram, Makkah</div>
+    <div><span class="tag" style="color:#c9a84c;border-color:#c9a84c44">Commanding</span><span class="tag" style="color:#c9a84c;border-color:#c9a84c44">Majestic</span><span class="tag" style="color:#c9a84c;border-color:#c9a84c44">Hijaz</span><span class="tag" style="color:#c9a84c;border-color:#c9a84c44">Powerful</span></div>
+    <div class="reciter-detail">
+      <div class="detail-grid">
+        <div class="detail-item"><label>Primary Maqam</label><p style="color:#c9a84c">Hijaz dominant</p></div>
+        <div class="detail-item"><label>Voice Character</label><p>Deep, commanding, majestic</p></div>
+        <div class="detail-item"><label>Adhan Style</label><p>Grand, full-throated, powerful ascents</p></div>
+        <div class="detail-item"><label>Best For</label><p>Fajr, Jumu'ah — high-impact moments</p></div>
+      </div>
+      <div class="insight-box">✦ Sudais rarely ornaments unnecessarily. Every note serves the word. His Hayya phrases are commanding — not pleading. Study how he controls breath between takbirs.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=Sudais+Adhan" target="_blank">▶ Listen on YouTube</a>
+    </div>
+  </div>
+
+  <div class="reciter-card" style="--rc:#3aafaf" onclick="toggleReciter(this)">
+    <div class="reciter-name-ar">إدريس أبكر</div>
+    <div class="reciter-name">Sheikh Idris Abkar</div>
+    <div class="reciter-mosque">Masjid Al-Haram, Makkah</div>
+    <div><span class="tag" style="color:#3aafaf;border-color:#3aafaf44">Warm</span><span class="tag" style="color:#3aafaf;border-color:#3aafaf44">Smooth</span><span class="tag" style="color:#3aafaf;border-color:#3aafaf44">Bayati</span><span class="tag" style="color:#3aafaf;border-color:#3aafaf44">Emotional</span></div>
+    <div class="reciter-detail">
+      <div class="detail-grid">
+        <div class="detail-item"><label>Primary Maqam</label><p style="color:#3aafaf">Bayati dominant</p></div>
+        <div class="detail-item"><label>Voice Character</label><p>Smooth, warm, emotionally penetrating</p></div>
+        <div class="detail-item"><label>Adhan Style</label><p>Flowing, soulful, deeply warm</p></div>
+        <div class="detail-item"><label>Best For</label><p>Any prayer — universally beloved</p></div>
+      </div>
+      <div class="insight-box">✦ Abkar's secret is breath control. He sustains notes others cut short. His Ashhadu phrases feel like a conversation with Allah — intimate, unhurried, certain.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=Idris+Abkar+Adhan" target="_blank">▶ Listen on YouTube</a>
+    </div>
+  </div>
+
+  <div class="reciter-card" style="--rc:#c8865a" onclick="toggleReciter(this)">
+    <div class="reciter-name-ar">صلاح بوخاطر</div>
+    <div class="reciter-name">Sheikh Salah Bukhatir</div>
+    <div class="reciter-mosque">UAE</div>
+    <div><span class="tag" style="color:#c8865a;border-color:#c8865a44">Melodic</span><span class="tag" style="color:#c8865a;border-color:#c8865a44">Balanced</span><span class="tag" style="color:#c8865a;border-color:#c8865a44">Rast</span><span class="tag" style="color:#c8865a;border-color:#c8865a44">Flowing</span></div>
+    <div class="reciter-detail">
+      <div class="detail-grid">
+        <div class="detail-item"><label>Primary Maqam</label><p style="color:#c8865a">Rast / Hijaz blend</p></div>
+        <div class="detail-item"><label>Voice Character</label><p>Melodic, flowing, beautifully balanced</p></div>
+        <div class="detail-item"><label>Adhan Style</label><p>Measured, melodically rich</p></div>
+        <div class="detail-item"><label>Best For</label><p>Tarawih, evening prayers</p></div>
+      </div>
+      <div class="insight-box">✦ Bukhatir blends maqamat seamlessly — opens in Rast then shifts to Hijaz at the emotional peak. Very intentional, very musical. A masterclass in transitions.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=Salah+Bukhatir+Adhan" target="_blank">▶ Listen on YouTube</a>
+    </div>
+  </div>
+
+  <div class="reciter-card" style="--rc:#9a8adf" onclick="toggleReciter(this)">
+    <div class="reciter-name-ar">وليد شمسان</div>
+    <div class="reciter-name">Sheikh Waleed Shamsan</div>
+    <div class="reciter-mosque">Masjid Al-Nabawi, Madinah</div>
+    <div><span class="tag" style="color:#9a8adf;border-color:#9a8adf44">Soulful</span><span class="tag" style="color:#9a8adf;border-color:#9a8adf44">Saba</span><span class="tag" style="color:#9a8adf;border-color:#9a8adf44">Intimate</span><span class="tag" style="color:#9a8adf;border-color:#9a8adf44">Moving</span></div>
+    <div class="reciter-detail">
+      <div class="detail-grid">
+        <div class="detail-item"><label>Primary Maqam</label><p style="color:#9a8adf">Saba / Hijaz blend</p></div>
+        <div class="detail-item"><label>Voice Character</label><p>Soulful, deeply moving, effortlessly expressive</p></div>
+        <div class="detail-item"><label>Adhan Style</label><p>Intimate yet grand, emotionally devastating</p></div>
+        <div class="detail-item"><label>Best For</label><p>All prayers — globally beloved right now</p></div>
+      </div>
+      <div class="insight-box">✦ Shamsan lets silence do work. His Hayya phrases open like a door — inviting, not demanding. Study his falāḥ specifically. That note is everything.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=Waleed+Shamsan+Adhan" target="_blank">▶ Listen on YouTube</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAQAMAT -->
+<div id="tab-maqamat" class="content">
+  <div class="section-title">Maqamat — Musical Modes</div>
+  <p class="section-desc">Understanding maqamat lets you recite with intention rather than imitation. Your voice — deep with upper range — can access all four beautifully.</p>
+
+  <div class="maqam-card" style="--mc:#c9a84c">
+    <div class="maqam-header"><div><div class="maqam-name">Hijaz</div><div class="maqam-arabic">حجاز</div></div><div><span class="tag" style="color:#c9a84c;border-color:#c9a84c44">Sudais</span><span class="tag" style="color:#c9a84c;border-color:#c9a84c44">Shamsan</span></div></div>
+    <div class="maqam-feel">Majestic, commanding, desert vastness</div>
+    <div class="maqam-desc">The most iconic maqam for Adhan. Built on a distinctive augmented second interval that gives it that haunting, elevated quality. When people close their eyes and imagine the Adhan, they're hearing Hijaz.</div>
+    <div class="maqam-voice"><strong>For Your Voice</strong>Deep voices own this maqam. You're in your natural lane — lean into it.</div>
+  </div>
+
+  <div class="maqam-card" style="--mc:#3aafaf">
+    <div class="maqam-header"><div><div class="maqam-name">Bayati</div><div class="maqam-arabic">بياتي</div></div><div><span class="tag" style="color:#3aafaf;border-color:#3aafaf44">Abkar</span><span class="tag" style="color:#3aafaf;border-color:#3aafaf44">Bukhatir</span></div></div>
+    <div class="maqam-feel">Warm, intimate, deeply human</div>
+    <div class="maqam-desc">The most used maqam in Arabic music and recitation. Natural, conversational quality. Many reciters default to Bayati because it feels like home — accessible, forgiving, and deeply emotional without being heavy.</div>
+    <div class="maqam-voice"><strong>For Your Voice</strong>Works across all ranges. Great for long prayers — doesn't fatigue the congregation.</div>
+  </div>
+
+  <div class="maqam-card" style="--mc:#c8865a">
+    <div class="maqam-header"><div><div class="maqam-name">Rast</div><div class="maqam-arabic">راست</div></div><div><span class="tag" style="color:#c8865a;border-color:#c8865a44">Bukhatir</span></div></div>
+    <div class="maqam-feel">Balanced, grounded, clear</div>
+    <div class="maqam-desc">Think of Rast as the foundation. Stable, resolved, and pure. Many imams use Rast as their base for prayer recitation because it doesn't fatigue voice or congregation during long Tarawih nights.</div>
+    <div class="maqam-voice"><strong>For Your Voice</strong>Ideal for Tarawih and long salah. Sustainable, not taxing — use as your resting mode.</div>
+  </div>
+
+  <div class="maqam-card" style="--mc:#9a8adf">
+    <div class="maqam-header"><div><div class="maqam-name">Saba</div><div class="maqam-arabic">صبا</div></div><div><span class="tag" style="color:#9a8adf;border-color:#9a8adf44">Shamsan</span></div></div>
+    <div class="maqam-feel">Deeply sorrowful, longing, spiritually piercing</div>
+    <div class="maqam-desc">Saba is the maqam of tears. It carries a quality of spiritual yearning that is almost impossible to fake. Shamsan's genius is knowing exactly when to invoke it — usually at the Hayya phrases — and when to pull back.</div>
+    <div class="maqam-voice"><strong>For Your Voice</strong>Powerful for deeper voices. Use sparingly at peak moments — overuse dilutes its power.</div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="blend-box">
+    <div class="section-title" style="margin-bottom:16px">Your Recommended Blend</div>
+    <p>Based on your voice and influences, your natural home is a <strong>Hijaz foundation with Saba inflections</strong> — the Waleed Shamsan model. Open each phrase in Hijaz for command, invoke Saba at the Hayya peaks, and use Bayati as your resting mode for long prayers. This is your identity. Own it.</p>
+  </div>
+</div>
+
+<!-- GENERATOR -->
+<div id="tab-generator" class="content">
+  <div class="section-title">AI Voice Generator</div>
+  <p class="section-desc">Audition different styles and phrases before committing them to your Adhan. API key is stored securely on the server — never in the browser.</p>
+
+  <div class="gen-section">
+    <label class="gen-label">Quick Phrases</label>
+    <div class="quick-phrases">
+      <button class="qp-btn" onclick="setPhrase('ٱللَّٰهُ أَكْبَرُ')">ٱللَّٰهُ أَكْبَرُ</button>
+      <button class="qp-btn" onclick="setPhrase('أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّٰهُ')">أَشْهَدُ أَنْ لَا إِلَٰهَ</button>
+      <button class="qp-btn" onclick="setPhrase('حَيَّ عَلَى ٱلصَّلَاةِ')">حَيَّ عَلَى ٱلصَّلَاةِ</button>
+      <button class="qp-btn" onclick="setPhrase('حَيَّ عَلَى ٱلْفَلَاحِ')">حَيَّ عَلَى ٱلْفَلَاحِ</button>
+      <button class="qp-btn" onclick="setPhrase('لَا إِلَٰهَ إِلَّا ٱللَّٰهُ')">لَا إِلَٰهَ إِلَّا ٱللَّٰهُ</button>
+    </div>
+
+    <label class="gen-label">Text (Arabic supported)</label>
+    <textarea class="gen-textarea" id="genText">ٱللَّٰهُ أَكْبَرُ</textarea>
+
+    <label class="gen-label">Voice</label>
+    <div class="voice-grid">
+      <div class="voice-opt sel" onclick="selectVoice(this,'pNInz6obpgDQGcFmaJgB')"><div class="voice-opt-name">Ibrahim</div><div class="voice-opt-sub">Deep, authoritative</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'VR6AewLTigWG4xSOukaG')"><div class="voice-opt-name">Khalid</div><div class="voice-opt-sub">Deep, commanding</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'ErXwobaYiN019PkySvjV')"><div class="voice-opt-name">Yusuf</div><div class="voice-opt-sub">Warm, smooth</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'TxGEqnHWrfWFTfGW9XjX')"><div class="voice-opt-name">Tariq</div><div class="voice-opt-sub">Deep, resonant</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'yoZ06aMxZJJ28mfd3POQ')"><div class="voice-opt-name">Bilal</div><div class="voice-opt-sub">Raspy, expressive</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'MF3mGyEYCl7XYWbV9V6O')"><div class="voice-opt-name">Nour</div><div class="voice-opt-sub">Clear, lighter tone</div></div>
+    </div>
+
+    <div class="slider-grid">
+      <div class="slider-group"><label>Stability <span id="stabVal">50%</span></label><input type="range" min="0" max="100" value="50" oninput="document.getElementById('stabVal').textContent=this.value+'%'" id="stabSlider" /></div>
+      <div class="slider-group"><label>Clarity <span id="clarVal">75%</span></label><input type="range" min="0" max="100" value="75" oninput="document.getElementById('clarVal').textContent=this.value+'%'" id="clarSlider" /></div>
+      <div class="slider-group"><label>Expressiveness <span id="exprVal">30%</span></label><input type="range" min="0" max="100" value="30" oninput="document.getElementById('exprVal').textContent=this.value+'%'" id="exprSlider" /></div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generateAudio()">Generate Audio ✦</button>
+
+    <div class="loading-text" id="loadingText" style="display:none">Generating your recitation...</div>
+    <div class="error-box" id="errorBox" style="display:none"></div>
+
+    <div class="audio-result" id="audioResult" style="display:none">
+      <div class="audio-label">Generated Audio</div>
+      <audio id="audioPlayer" controls></audio>
+      <p class="audio-tip">Tip: Higher Expressiveness for emotional Hayya phrases. Higher Stability for consistent takbirs. Bilal voice works best for raw, raspy delivery.</p>
+    </div>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div id="tab-notes" class="content">
+  <div class="section-title">My Style Notes</div>
+  <p class="section-desc">Track what resonates. Notes on phrases, maqam observations, community feedback, your growth. Saved to this device.</p>
+  <textarea class="notes-area" id="notesArea" placeholder="Notes on your Adhan style, what's working, what to improve, phrases you want to practice..."></textarea>
+  <br/>
+  <button class="save-notes-btn" onclick="saveNotes()">Save Notes</button>
+  <div class="notes-saved" id="notesSaved">✓ Saved to this device</div>
+</div>
+
+<script>
+  let selectedVoiceId = 'pNInz6obpgDQGcFmaJgB';
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedNotes = localStorage.getItem('imam_notes');
+    if (savedNotes) document.getElementById('notesArea').value = savedNotes;
+  });
+
+  function showTab(id, btn) {
+    document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleReciter(card) {
+    const isOpen = card.classList.contains('open');
+    document.querySelectorAll('.reciter-card').forEach(c => c.classList.remove('open'));
+    if (!isOpen) card.classList.add('open');
+  }
+
+  function selectVoice(el, voiceId) {
+    document.querySelectorAll('.voice-opt').forEach(v => v.classList.remove('sel'));
+    el.classList.add('sel');
+    selectedVoiceId = voiceId;
+  }
+
+  function setPhrase(text) {
+    document.getElementById('genText').value = text;
+  }
+
+  function saveNotes() {
+    localStorage.setItem('imam_notes', document.getElementById('notesArea').value);
+    const el = document.getElementById('notesSaved');
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 2500);
+  }
+
+  async function generateAudio() {
+    const text = document.getElementById('genText').value.trim();
+    const errorBox = document.getElementById('errorBox');
+    const loadingText = document.getElementById('loadingText');
+    const audioResult = document.getElementById('audioResult');
+    const genBtn = document.getElementById('genBtn');
+
+    errorBox.style.display = 'none';
+    audioResult.style.display = 'none';
+
+    if (!text) {
+      errorBox.textContent = 'Please enter some text or tap a quick phrase.';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    genBtn.disabled = true;
+    loadingText.style.display = 'block';
+
+    try {
+      const response = await fetch('/.netlify/functions/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voiceId: selectedVoiceId,
+          text,
+          stability: document.getElementById('stabSlider').value / 100,
+          similarity_boost: document.getElementById('clarSlider').value / 100,
+          style: document.getElementById('exprSlider').value / 100,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Error ${response.status}`);
+      }
+
+      const binary = atob(data.audio);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'audio/mpeg' });
+      const url = URL.createObjectURL(blob);
+
+      const player = document.getElementById('audioPlayer');
+      player.src = url;
+      audioResult.style.display = 'block';
+      player.play().catch(() => {});
+
+    } catch (e) {
+      errorBox.textContent = e.message || 'Generation failed. Please try again.';
+      errorBox.style.display = 'block';
+    }
+
+    genBtn.disabled = false;
+    loadingText.style.display = 'none';
+  }
+</script>
+</body>
+</html>
