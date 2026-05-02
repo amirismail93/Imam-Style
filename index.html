@@ -133,10 +133,13 @@
     .voice-opt-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--cream); margin-bottom: 2px; }
     .voice-opt-sub { font-size: 11px; color: var(--text-dim); }
 
-    .slider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-    .slider-group label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold-dim); display: flex; justify-content: space-between; margin-bottom: 8px; }
-    .slider-group label span { color: var(--gold); }
-    input[type="range"] { width: 100%; accent-color: var(--gold); cursor: pointer; }
+    .maqam-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+    .mq-opt { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .mq-opt:hover, .mq-opt.sel { border-color: var(--gold-dim); background: rgba(201,168,76,0.06); }
+    .mq-opt.sel { border-color: var(--gold); }
+    .mq-opt-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--cream); margin-bottom: 2px; }
+    .mq-opt-sub { font-size: 10px; color: var(--text-dim); }
+    .gen-time-note { font-size: 11px; color: var(--text-dim); font-style: italic; margin-bottom: 20px; text-align: center; }
 
     .gen-btn { width: 100%; background: linear-gradient(135deg, var(--gold-dim), var(--gold)); border: none; color: #0a0e1a; padding: 14px; border-radius: 6px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; transition: all 0.2s; }
     .gen-btn:hover:not(:disabled) { background: linear-gradient(135deg, var(--gold), var(--gold-light)); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
@@ -162,7 +165,8 @@
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
     @media (max-width: 560px) {
-      .detail-grid, .slider-grid, .voice-grid { grid-template-columns: 1fr; }
+      .detail-grid, .voice-grid { grid-template-columns: 1fr; }
+      .maqam-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -312,8 +316,8 @@
 
 <!-- GENERATOR -->
 <div id="tab-generator" class="content">
-  <div class="section-title">AI Voice Generator</div>
-  <p class="section-desc">Audition different styles and phrases before committing them to your Adhan. API key is stored securely on the server — never in the browser.</p>
+  <div class="section-title">AI Recitation Generator</div>
+  <p class="section-desc">Powered by Bark — an AI model that chants and sings rather than just reading. Hear your phrases in different maqam styles before committing to them.</p>
 
   <div class="gen-section">
     <label class="gen-label">Quick Phrases</label>
@@ -330,29 +334,31 @@
 
     <label class="gen-label">Voice</label>
     <div class="voice-grid">
-      <div class="voice-opt sel" onclick="selectVoice(this,'pNInz6obpgDQGcFmaJgB')"><div class="voice-opt-name">Ibrahim</div><div class="voice-opt-sub">Deep, authoritative</div></div>
-      <div class="voice-opt" onclick="selectVoice(this,'VR6AewLTigWG4xSOukaG')"><div class="voice-opt-name">Khalid</div><div class="voice-opt-sub">Deep, commanding</div></div>
-      <div class="voice-opt" onclick="selectVoice(this,'ErXwobaYiN019PkySvjV')"><div class="voice-opt-name">Yusuf</div><div class="voice-opt-sub">Warm, smooth</div></div>
-      <div class="voice-opt" onclick="selectVoice(this,'TxGEqnHWrfWFTfGW9XjX')"><div class="voice-opt-name">Tariq</div><div class="voice-opt-sub">Deep, resonant</div></div>
-      <div class="voice-opt" onclick="selectVoice(this,'yoZ06aMxZJJ28mfd3POQ')"><div class="voice-opt-name">Bilal</div><div class="voice-opt-sub">Raspy, expressive</div></div>
-      <div class="voice-opt" onclick="selectVoice(this,'MF3mGyEYCl7XYWbV9V6O')"><div class="voice-opt-name">Nour</div><div class="voice-opt-sub">Clear, lighter tone</div></div>
+      <div class="voice-opt sel" onclick="selectVoice(this,'v2/en_speaker_6')"><div class="voice-opt-name">Ibrahim</div><div class="voice-opt-sub">Deep, authoritative</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'v2/en_speaker_9')"><div class="voice-opt-name">Khalid</div><div class="voice-opt-sub">Deep, commanding</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'v2/en_speaker_3')"><div class="voice-opt-name">Yusuf</div><div class="voice-opt-sub">Warm, smooth</div></div>
+      <div class="voice-opt" onclick="selectVoice(this,'v2/en_speaker_1')"><div class="voice-opt-name">Tariq</div><div class="voice-opt-sub">Rich, resonant</div></div>
     </div>
 
-    <div class="slider-grid">
-      <div class="slider-group"><label>Stability <span id="stabVal">50%</span></label><input type="range" min="0" max="100" value="50" oninput="document.getElementById('stabVal').textContent=this.value+'%'" id="stabSlider" /></div>
-      <div class="slider-group"><label>Clarity <span id="clarVal">75%</span></label><input type="range" min="0" max="100" value="75" oninput="document.getElementById('clarVal').textContent=this.value+'%'" id="clarSlider" /></div>
-      <div class="slider-group"><label>Expressiveness <span id="exprVal">30%</span></label><input type="range" min="0" max="100" value="30" oninput="document.getElementById('exprVal').textContent=this.value+'%'" id="exprSlider" /></div>
+    <label class="gen-label">Maqam Style</label>
+    <div class="maqam-grid">
+      <div class="mq-opt sel" onclick="selectMaqam(this,'hijaz')"><div class="mq-opt-name">Hijaz</div><div class="mq-opt-sub">Majestic, commanding</div></div>
+      <div class="mq-opt" onclick="selectMaqam(this,'bayati')"><div class="mq-opt-name">Bayati</div><div class="mq-opt-sub">Warm, flowing</div></div>
+      <div class="mq-opt" onclick="selectMaqam(this,'saba')"><div class="mq-opt-name">Saba</div><div class="mq-opt-sub">Deeply moving</div></div>
+      <div class="mq-opt" onclick="selectMaqam(this,'rast')"><div class="mq-opt-name">Rast</div><div class="mq-opt-sub">Balanced, clear</div></div>
     </div>
 
-    <button class="gen-btn" id="genBtn" onclick="generateAudio()">Generate Audio ✦</button>
+    <p class="gen-time-note">Generation takes ~30–60 seconds. Each result is unique — try the same phrase a few times.</p>
 
-    <div class="loading-text" id="loadingText" style="display:none">Generating your recitation...</div>
+    <button class="gen-btn" id="genBtn" onclick="generateAudio()">Generate Recitation ✦</button>
+
+    <div class="loading-text" id="loadingText" style="display:none">Starting generation...</div>
     <div class="error-box" id="errorBox" style="display:none"></div>
 
     <div class="audio-result" id="audioResult" style="display:none">
-      <div class="audio-label">Generated Audio</div>
+      <div class="audio-label">Generated Recitation</div>
       <audio id="audioPlayer" controls></audio>
-      <p class="audio-tip">Tip: Higher Expressiveness for emotional Hayya phrases. Higher Stability for consistent takbirs. Bilal voice works best for raw, raspy delivery.</p>
+      <p class="audio-tip">Tip: Hijaz maqam gives the most authentic Adhan sound. Try the same phrase multiple times — Bark generates slightly differently each time. Ibrahim voice works best for deep chest resonance.</p>
     </div>
   </div>
 </div>
@@ -368,7 +374,9 @@
 </div>
 
 <script>
-  let selectedVoiceId = 'pNInz6obpgDQGcFmaJgB';
+  let selectedVoicePreset = 'v2/en_speaker_6';
+  let selectedMaqam = 'hijaz';
+  let pollingInterval = null;
 
   window.addEventListener('DOMContentLoaded', () => {
     const savedNotes = localStorage.getItem('imam_notes');
@@ -388,10 +396,16 @@
     if (!isOpen) card.classList.add('open');
   }
 
-  function selectVoice(el, voiceId) {
+  function selectVoice(el, preset) {
     document.querySelectorAll('.voice-opt').forEach(v => v.classList.remove('sel'));
     el.classList.add('sel');
-    selectedVoiceId = voiceId;
+    selectedVoicePreset = preset;
+  }
+
+  function selectMaqam(el, maqam) {
+    document.querySelectorAll('.mq-opt').forEach(v => v.classList.remove('sel'));
+    el.classList.add('sel');
+    selectedMaqam = maqam;
   }
 
   function setPhrase(text) {
@@ -412,6 +426,11 @@
     const audioResult = document.getElementById('audioResult');
     const genBtn = document.getElementById('genBtn');
 
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
+
     errorBox.style.display = 'none';
     audioResult.style.display = 'none';
 
@@ -422,45 +441,85 @@
     }
 
     genBtn.disabled = true;
+    loadingText.textContent = 'Starting generation...';
     loadingText.style.display = 'block';
 
     try {
-      const response = await fetch('/.netlify/functions/generate', {
+      const startRes = await fetch('/.netlify/functions/start-generation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          voiceId: selectedVoiceId,
           text,
-          stability: document.getElementById('stabSlider').value / 100,
-          similarity_boost: document.getElementById('clarSlider').value / 100,
-          style: document.getElementById('exprSlider').value / 100,
+          voicePreset: selectedVoicePreset,
+          maqamStyle: selectedMaqam,
         }),
       });
 
-      const data = await response.json();
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.error || `Error ${startRes.status}`);
 
-      if (!response.ok) {
-        throw new Error(data.error || `Error ${response.status}`);
-      }
-
-      const binary = atob(data.audio);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const blob = new Blob([bytes], { type: 'audio/mpeg' });
-      const url = URL.createObjectURL(blob);
-
-      const player = document.getElementById('audioPlayer');
-      player.src = url;
-      audioResult.style.display = 'block';
-      player.play().catch(() => {});
-
+      pollForResult(startData.id);
     } catch (e) {
       errorBox.textContent = e.message || 'Generation failed. Please try again.';
       errorBox.style.display = 'block';
+      genBtn.disabled = false;
+      loadingText.style.display = 'none';
+    }
+  }
+
+  function pollForResult(id) {
+    const errorBox = document.getElementById('errorBox');
+    const loadingText = document.getElementById('loadingText');
+    const audioResult = document.getElementById('audioResult');
+    const genBtn = document.getElementById('genBtn');
+
+    let dots = 1;
+    const dotInterval = setInterval(() => {
+      dots = (dots % 3) + 1;
+      loadingText.textContent = 'Generating recitation' + '.'.repeat(dots) + '  (~30–60 sec)';
+    }, 800);
+
+    let attempts = 0;
+    const maxAttempts = 40;
+
+    function stop(errMsg) {
+      clearInterval(dotInterval);
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+      loadingText.style.display = 'none';
+      genBtn.disabled = false;
+      if (errMsg) {
+        errorBox.textContent = errMsg;
+        errorBox.style.display = 'block';
+      }
     }
 
-    genBtn.disabled = false;
-    loadingText.style.display = 'none';
+    async function check() {
+      attempts++;
+      if (attempts > maxAttempts) {
+        stop('Generation timed out. Please try again.');
+        return;
+      }
+      try {
+        const res = await fetch(`/.netlify/functions/check-generation?id=${id}`);
+        const data = await res.json();
+
+        if (data.status === 'succeeded') {
+          stop(null);
+          const player = document.getElementById('audioPlayer');
+          player.src = data.audioUrl;
+          audioResult.style.display = 'block';
+          player.play().catch(() => {});
+        } else if (data.status === 'failed') {
+          stop(data.error || 'Generation failed. Please try again.');
+        }
+      } catch (e) {
+        stop(e.message || 'Failed to check generation status.');
+      }
+    }
+
+    pollingInterval = setInterval(check, 3000);
+    check();
   }
 </script>
 </body>
