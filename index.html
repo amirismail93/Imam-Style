@@ -140,6 +140,8 @@
     .mq-opt-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--cream); margin-bottom: 2px; }
     .mq-opt-sub { font-size: 10px; color: var(--text-dim); }
     .gen-time-note { font-size: 11px; color: var(--text-dim); font-style: italic; margin-bottom: 20px; text-align: center; }
+    .gen-roman { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; color: var(--cream); padding: 10px 14px; font-family: 'Lora', serif; font-size: 15px; margin-bottom: 16px; outline: none; transition: border-color 0.2s; }
+    .gen-roman:focus { border-color: var(--gold-dim); }
 
     .gen-btn { width: 100%; background: linear-gradient(135deg, var(--gold-dim), var(--gold)); border: none; color: #0a0e1a; padding: 14px; border-radius: 6px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; transition: all 0.2s; }
     .gen-btn:hover:not(:disabled) { background: linear-gradient(135deg, var(--gold), var(--gold-light)); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
@@ -322,15 +324,18 @@
   <div class="gen-section">
     <label class="gen-label">Quick Phrases</label>
     <div class="quick-phrases">
-      <button class="qp-btn" onclick="setPhrase('ٱللَّٰهُ أَكْبَرُ')">ٱللَّٰهُ أَكْبَرُ</button>
-      <button class="qp-btn" onclick="setPhrase('أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّٰهُ')">أَشْهَدُ أَنْ لَا إِلَٰهَ</button>
-      <button class="qp-btn" onclick="setPhrase('حَيَّ عَلَى ٱلصَّلَاةِ')">حَيَّ عَلَى ٱلصَّلَاةِ</button>
-      <button class="qp-btn" onclick="setPhrase('حَيَّ عَلَى ٱلْفَلَاحِ')">حَيَّ عَلَى ٱلْفَلَاحِ</button>
-      <button class="qp-btn" onclick="setPhrase('لَا إِلَٰهَ إِلَّا ٱللَّٰهُ')">لَا إِلَٰهَ إِلَّا ٱللَّٰهُ</button>
+      <button class="qp-btn" onclick="setPhrase('ٱللَّٰهُ أَكْبَرُ','Allahu Akbar')">ٱللَّٰهُ أَكْبَرُ</button>
+      <button class="qp-btn" onclick="setPhrase('أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّٰهُ','Ash-hadu an laa ilaaha ill-Allah')">أَشْهَدُ أَنْ لَا إِلَٰهَ</button>
+      <button class="qp-btn" onclick="setPhrase('حَيَّ عَلَى ٱلصَّلَاةِ','Hayya alas-salaah')">حَيَّ عَلَى ٱلصَّلَاةِ</button>
+      <button class="qp-btn" onclick="setPhrase('حَيَّ عَلَى ٱلْفَلَاحِ','Hayya alal-falaah')">حَيَّ عَلَى ٱلْفَلَاحِ</button>
+      <button class="qp-btn" onclick="setPhrase('لَا إِلَٰهَ إِلَّا ٱللَّٰهُ','Laa ilaaha ill-Allah')">لَا إِلَٰهَ إِلَّا ٱللَّٰهُ</button>
     </div>
 
-    <label class="gen-label">Text (Arabic supported)</label>
+    <label class="gen-label">Arabic Text</label>
     <textarea class="gen-textarea" id="genText">ٱللَّٰهُ أَكْبَرُ</textarea>
+
+    <label class="gen-label">Transliteration <span style="color:var(--text-dim);font-family:'Lora',serif;font-size:10px;letter-spacing:0;text-transform:none;font-weight:400"> — what Bark actually chants (edit for custom phrases)</span></label>
+    <input type="text" class="gen-roman" id="genRoman" value="Allahu Akbar" placeholder="e.g. Allahu Akbar" />
 
     <label class="gen-label">Voice</label>
     <div class="voice-grid">
@@ -408,8 +413,9 @@
     selectedMaqam = maqam;
   }
 
-  function setPhrase(text) {
-    document.getElementById('genText').value = text;
+  function setPhrase(arabic, roman) {
+    document.getElementById('genText').value = arabic;
+    document.getElementById('genRoman').value = roman;
   }
 
   function saveNotes() {
@@ -434,7 +440,9 @@
     errorBox.style.display = 'none';
     audioResult.style.display = 'none';
 
-    if (!text) {
+    const roman = document.getElementById('genRoman').value.trim();
+
+    if (!text && !roman) {
       errorBox.textContent = 'Please enter some text or tap a quick phrase.';
       errorBox.style.display = 'block';
       return;
@@ -445,11 +453,14 @@
     loadingText.style.display = 'block';
 
     try {
+      const roman = document.getElementById('genRoman').value.trim();
+
       const startRes = await fetch('/.netlify/functions/start-generation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text,
+          roman: roman || undefined,
           voicePreset: selectedVoicePreset,
           maqamStyle: selectedMaqam,
         }),

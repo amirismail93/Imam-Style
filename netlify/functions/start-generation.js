@@ -1,3 +1,28 @@
+// Bark chants English/romanized text far better than Arabic script.
+// Map known Adhan phrases to their transliterations so Bark can actually sing them.
+const PHRASE_MAP = {
+  "ٱللَّٰهُ أَكْبَرُ": "Allahu Akbar",
+  "اللَّٰهُ أَكْبَرُ": "Allahu Akbar",
+  "الله أكبر": "Allahu Akbar",
+  "أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّٰهُ": "Ash-hadu an laa ilaaha ill-Allah",
+  "أشهد أن لا إله إلا الله": "Ash-hadu an laa ilaaha ill-Allah",
+  "أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ ٱللَّٰهِ": "Ash-hadu anna Muhammadan rasulullah",
+  "أشهد أن محمدا رسول الله": "Ash-hadu anna Muhammadan rasulullah",
+  "حَيَّ عَلَى ٱلصَّلَاةِ": "Hayya alas-salaah",
+  "حي على الصلاة": "Hayya alas-salaah",
+  "حَيَّ عَلَى ٱلْفَلَاحِ": "Hayya alal-falaah",
+  "حي على الفلاح": "Hayya alal-falaah",
+  "لَا إِلَٰهَ إِلَّا ٱللَّٰهُ": "Laa ilaaha ill-Allah",
+  "لا إله إلا الله": "Laa ilaaha ill-Allah",
+};
+
+function resolveText(raw) {
+  const trimmed = raw.trim();
+  if (PHRASE_MAP[trimmed]) return PHRASE_MAP[trimmed];
+  // If it looks like Arabic script, warn but pass through — user may have typed transliteration already
+  return trimmed;
+}
+
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
@@ -18,21 +43,26 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: "Invalid request body." }) };
   }
 
-  const { text, voicePreset, maqamStyle } = body;
+  // Accept either `text` (Arabic, auto-mapped) or `roman` (user-supplied transliteration)
+  const { text, roman, voicePreset, maqamStyle } = body;
+  const raw = roman || text;
 
-  if (!text) {
+  if (!raw) {
     return { statusCode: 400, body: JSON.stringify({ error: "Missing text." }) };
   }
 
+  const chantText = roman ? roman.trim() : resolveText(raw);
+
   const styleHints = {
-    hijaz: "[slow, powerful, commanding, majestic Islamic adhan chanting, maqam hijaz]",
-    bayati: "[warm, smooth, flowing, soulful Islamic recitation, maqam bayati]",
-    saba: "[deeply moving, sorrowful, spiritual, yearning Islamic chanting, maqam saba]",
-    rast: "[balanced, clear, grounded, measured Islamic recitation, maqam rast]",
+    hijaz: "slowly, powerfully, with majestic Islamic adhan melody",
+    bayati: "warmly, smoothly, with flowing soulful Islamic recitation melody",
+    saba: "with deep emotion, longing, spiritual Islamic chanting melody",
+    rast: "clearly, balanced, with grounded measured Islamic recitation melody",
   };
 
   const hint = styleHints[maqamStyle] || styleHints.hijaz;
-  const formattedText = `♪ ${hint} ${text} ♪`;
+  // Bark responds best to a clean musical prompt — no brackets, just natural description
+  const formattedText = `♪ ${chantText} ♪ [singing ${hint}] ♪ ${chantText} ♪`;
 
   try {
     const response = await fetch(
@@ -47,8 +77,8 @@ exports.handler = async function (event) {
           input: {
             text_prompt: formattedText,
             history_prompt: voicePreset || "v2/en_speaker_6",
-            text_temp: 0.7,
-            waveform_temp: 0.7,
+            text_temp: 0.6,
+            waveform_temp: 0.8,
           },
         }),
       }
